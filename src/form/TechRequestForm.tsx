@@ -1,4 +1,15 @@
-import { Button, DialogActions, FormControl, TextField } from "@mui/material";
+import {
+  Alert,
+  AlertColor,
+  Button,
+  DialogActions,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  OutlinedInput,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -23,18 +34,25 @@ interface TechRequestDialogProps {
 
 const TechRequestForm = (props: TechRequestDialogProps) => {
   const { handleCloseDialog } = props;
+  const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
+  const [severity, setSeverity] = useState<AlertColor>();
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Dayjs | null>(dayjs());
   const [emailError, setEmailError] = useState(false);
   const [descriptionError, setDescriptionError] = useState(false);
-  const [dueDateError, setDueDateError] = useState(false);
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
   const yearAhead = dayjs().add(1, "year");
+  const validateEmail = emailRegex.test(email);
+  const validateDescription =
+    description.length >= 100 && description.length <= 1000;
 
-  const handleEmail = (e: any) => {
-    setEmail(e.target.value);
-    const validateEmail = emailRegex.test(email);
+  const handleCloseAlert = () => {
+    setOpenAlert(false);
+  };
+
+  const setValidateEmail = () => {
     if (validateEmail) {
       setEmailError(false);
     } else {
@@ -42,11 +60,7 @@ const TechRequestForm = (props: TechRequestDialogProps) => {
     }
   };
 
-  const handleDescription = (e: any) => {
-    setDescription(e.target.value);
-    const validateDescription =
-      description.length < 1000 || description.length > 100;
-    console.log(validateDescription, "val desc");
+  const setValidateDescription = () => {
     if (validateDescription) {
       setDescriptionError(false);
     } else {
@@ -54,65 +68,128 @@ const TechRequestForm = (props: TechRequestDialogProps) => {
     }
   };
 
-  const addTechnicalRequest = () => {
+  const handleEmail = (e: any) => {
+    setEmail(e.target.value);
+    setValidateEmail();
+  };
+
+  const handleDescription = (e: any) => {
+    setDescription(e.target.value);
+    setValidateDescription();
+  };
+
+  const clearForm = () => {
+    setDescription("");
+    setEmail("");
+  };
+
+  const addTechnicalRequest = async () => {
+    setAlertMessage("");
+    setOpenAlert(false);
+    setSeverity("info");
     const techRequest: TechnicalRequest = {
       email,
       description,
       dueDate,
-      id: Math.floor(Math.random() * 10),
+      id: Math.floor(Math.random() * 10000),
     };
-    console.log(techRequest, "tech request");
-    addTechRequest(techRequest);
+
+    setValidateEmail();
+    setValidateDescription();
+
+    if (!validateEmail || !validateDescription) {
+      setAlertMessage("Please correct the errors in the form.");
+      setSeverity("error");
+      setOpenAlert(true);
+      return;
+    }
+
+    try {
+      const response = await addTechRequest(techRequest);
+      if (response.status === 201) {
+        setAlertMessage("Successfully added request!");
+        setSeverity("success");
+        clearForm();
+      } else {
+        setAlertMessage("Error adding request.");
+        setSeverity("error");
+      }
+      setOpenAlert(true);
+    } catch (error) {
+      setAlertMessage("There is an internal error adding request.");
+      setSeverity("error");
+      setOpenAlert(true);
+      console.error(error);
+    }
   };
 
   return (
     <div>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <form>
-          <FormControl>
-            <TextField
-              label="Email"
-              variant="outlined"
-              required
-              helperText={
-                emailError ? "Email must be valid and include @ sign." : ""
-              }
-              value={email}
-              error={emailError}
-              onChange={handleEmail}
-            />
-          </FormControl>
-          <FormControl>
-            <TextField
-              label="Description"
-              variant="outlined"
-              required
-              multiline
-              helperText={
-                descriptionError
-                  ? "Description must be between 100 andd 1000 characters."
-                  : ""
-              }
-              value={description}
-              onChange={handleDescription}
-            />
-          </FormControl>
-          <FormControl>
-            <DatePicker
-              label="Due Date"
-              disablePast
-              maxDate={yearAhead}
-              defaultValue={dayjs()}
-              onChange={(e) => setDueDate(e)}
-              format="YYYY-MM-DD"
-            />
-          </FormControl>
+          <Stack spacing={2} paddingTop={1}>
+            <FormControl>
+              <FormLabel htmlFor="email">Email:</FormLabel>
+              <TextField
+                variant="outlined"
+                color="primary"
+                id="email"
+                required
+                helperText={
+                  emailError ? "Email must be valid and include @ sign." : ""
+                }
+                value={email}
+                error={emailError}
+                onChange={handleEmail}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="description">Description:</FormLabel>
+
+              <OutlinedInput
+                id="description"
+                type="text"
+                required
+                multiline
+                value={description}
+                onChange={handleDescription}
+                inputProps={{
+                  maxLength: 1000,
+                }}
+                error={descriptionError}
+              ></OutlinedInput>
+              {descriptionError ? (
+                <FormHelperText error>
+                  Description must be between 100 andd 1000 characters.
+                </FormHelperText>
+              ) : null}
+            </FormControl>
+            {/* no error handler for date bc the maxDate is a year from current date */}
+            <FormControl>
+              <FormLabel htmlFor="dueDate">Due Date:</FormLabel>
+              <DatePicker
+                disablePast
+                maxDate={yearAhead}
+                onChange={(e) => setDueDate(e)}
+                format="MM-DD-YYYY"
+              />
+            </FormControl>
+          </Stack>
         </form>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={addTechnicalRequest}>Submit</Button>
+          <Button variant="outlined" onClick={handleCloseDialog}>
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={addTechnicalRequest}>
+            Submit
+          </Button>
         </DialogActions>
       </LocalizationProvider>
+      {openAlert && (
+        <Alert onClose={handleCloseAlert} severity={severity}>
+          {alertMessage}
+        </Alert>
+      )}
     </div>
   );
 };

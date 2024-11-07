@@ -19,28 +19,22 @@ export interface TechnicalRequest {
   dueDate: Date;
 }
 
-// export const getTechRequests = async () => {
-//     await fetch(url, {
-//         method: 'GET',
-//         headers,
-//       })
-//         .then((res) => {
-//           console.log(res);
-//           return res.json();
-//         })
-//         .then((data: TechnicalRequest[] )=>{
-//           console.log(data);
-//           return data;
-//         })
-//         .catch(error => console.error('Unable to retrieve data', error))
-// }
-
 export const getTechRequests = async () => {
   return await api.get("").then((response) => {
     console.log(response);
     return response;
   });
 };
+
+// export const addTechRequest = async (body: any) => {
+//   try {
+//     const response = await api.post("", body);
+//     console.log(response);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Unable to add request", error);
+//   }
+// };
 
 export const addTechRequest = async (body: any) => {
   return await fetch(uri, {

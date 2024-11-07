@@ -1,33 +1,17 @@
-import React, { useState, useEffect } from "react";
-import logo from "./logo.svg";
+import  { useState } from "react";
+import logo from "./Pearson_logo.svg.png";
 import "./App.css";
 import TechRequestDialog from "./form/TechRequestDialog";
-import TechRequestForm from "./form/TechRequestForm";
 import { PrimeReactProvider } from "primereact/api";
 
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import { Button } from "@mui/material";
-import {
-  getTechRequests,
-  TechnicalRequest,
-} from "./apiService/techRequestService";
 import TechRequestList from "./form/TechRequestList";
 
 function App() {
   const [openEmailDialog, setOpenEmailDialog] = useState<boolean>(false);
   const [openTechRequestList, setOpenTechRequestList] =
     useState<boolean>(false);
-  const [techRequests, setTechRequests] = useState<TechnicalRequest[]>([]);
-
-  const fetchTechnicalRequests = async () => {
-    const response = await getTechRequests();
-    console.log(response, "app file");
-    setTechRequests(response.data);
-  };
-
-  useEffect(() => {
-    fetchTechnicalRequests();
-  }, []);
 
   const handleOpenDialog = () => {
     setOpenEmailDialog(true);
@@ -41,37 +25,35 @@ function App() {
     setOpenTechRequestList(false);
   };
 
+  const handleOpenList = () => {
+    setOpenTechRequestList(true);
+  };
+
   return (
-    <PrimeReactProvider>
-      <div>
+    <div>
+      <PrimeReactProvider>
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+          <img src={logo} alt="logo" />
           <p>Pearson Form</p>
-          <Button variant="outlined" onClick={handleOpenDialog}>
-            Create Technical Request
-          </Button>
-          {techRequests.length > 0 ? (
-            <Button
-              variant="outlined"
-              onClick={() => setOpenTechRequestList(true)}
-            >
+          <div style={{ display: "flex", gap: "10px" }}>
+          <Button variant="contained" onClick={handleOpenList}>
               View Technical Requests
             </Button>
-          ) : null}
-
+            <Button variant="contained" onClick={handleOpenDialog}>
+              Create Technical Request
+            </Button>
+          </div>
           <TechRequestDialog
             open={openEmailDialog}
             handleCloseDialog={handleCloseDialog}
           />
-
           <TechRequestList
             open={openTechRequestList}
-            techRequests={techRequests}
             onClose={handleCloseList}
           />
         </header>
-      </div>
-    </PrimeReactProvider>
+      </PrimeReactProvider>
+    </div>
   );
 }
 

@@ -1,69 +1,68 @@
-import { Dialog, DialogContent, DialogTitle, Typography } from "@mui/material";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 
-import { DataView, DataViewLayoutOptions } from "primereact/dataview";
-
-import { Card } from "primereact/card";
-
-import { TechnicalRequest } from "../apiService/techRequestService";
+import {
+  getTechRequests,
+  TechnicalRequest,
+} from "../apiService/techRequestService";
+import { useState, useEffect, useCallback } from "react";
 
 interface ListProps {
-  techRequests: TechnicalRequest[];
+  techRequests?: TechnicalRequest[];
   open: boolean;
   onClose?: (value: string) => void;
 }
 
 const TechRequestList = (props: ListProps) => {
-  const { techRequests, open, onClose } = props;
+  const { open, onClose } = props;
 
-  const itemTemplate = (techRequests: TechnicalRequest, index: number) => {
-    return (
-      <Card
-        key={techRequests.id}
-        title={techRequests.email}
-        subTitle={techRequests.id}
-      >
-        <p>{techRequests.description}</p>
-        <p>Due Date:</p>
-        {/* {techRequests.dueDate} */}
-      </Card>
-    );
-  };
+  const [technicalRequests, setTechRequests] = useState<TechnicalRequest[]>([]);
 
-  const listTemplate = (requests: TechnicalRequest[]) => {
-    if (!requests || requests.length === 0) return null;
+  const fetchTechnicalRequests = useCallback(async () => {
+    const response = await getTechRequests();
+    setTechRequests(response.data);
+  }, [open]);
 
-    let list = requests.map((requests, index) => {
-      return itemTemplate(requests, index);
-    });
-
-    return <div>{list}</div>;
-  };
+  useEffect(() => {
+    fetchTechnicalRequests();
+  }, [open, fetchTechnicalRequests]);
 
   return (
     <div>
-      <Dialog open={open} maxWidth="md" fullWidth onClose={onClose}>
+      <Dialog open={open} maxWidth="lg" fullWidth onClose={onClose}>
         <DialogTitle>List of Technical Requests</DialogTitle>
-        <DialogContent sx={{ maxWidth: "97%" }}>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <DataTable
-            value={techRequests}
-            tableStyle={{ display: "inline", maxWidth: "80%" }}
+            scrollable
+            scrollHeight="flex"
+            style={{flex: 1}}
+            width="auto"
+            value={technicalRequests}
+            emptyMessage="There are no technical requests."
             sortField="dueDate"
             sortOrder={-1}
           >
-            <Column field="id" header="Id"></Column>
-            <Column field="email" header="Email"></Column>
+            <Column field="id" header="Id"  style={{maxWidth: '40px'}}></Column>
+            <Column field="email" header="Email" style={{maxWidth: '150px'}}></Column>
             <Column
               field="description"
               header="Description"
-              style={{ width: "20%" }}
+              style={{maxWidth: '170px'}}
+              body={(rowData) => (
+                <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {rowData.description}
+                </div>
+              )}
             ></Column>
-            <Column field="dueDate" header="Due Date" sortable></Column>,
+            <Column field="dueDate" header="Due Date" sortable  style={{maxWidth: '60px'}}></Column>
           </DataTable>
         </DialogContent>
-        {/* <DataView  value={techRequests} listTemplate={listTemplate} /> */}
       </Dialog>
     </div>
   );
