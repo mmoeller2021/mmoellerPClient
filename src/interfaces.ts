@@ -1,12 +1,12 @@
 export interface TechRequestDialogProps {
   open: boolean;
   selectedValue?: string;
-  onClose?: (value: string) => void;
+  onClose?: () => void;
 }
 
 export interface TechnicalRequest {
   id: number;
   email: string;
   description: string;
-  dueDate: any;
+  dueDate: string;
 }

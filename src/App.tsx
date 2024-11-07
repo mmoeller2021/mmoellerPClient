@@ -1,5 +1,5 @@
 import  { useState } from "react";
-import logo from "./Pearson_logo.svg.png";
+import logo from "./PLogo.png";
 import "./App.css";
 import TechRequestDialog from "./form/TechRequestDialog";
 import { PrimeReactProvider } from "primereact/api";
@@ -45,7 +45,7 @@ function App() {
           </div>
           <TechRequestDialog
             open={openEmailDialog}
-            handleCloseDialog={handleCloseDialog}
+            onClose={handleCloseDialog}
           />
           <TechRequestList
             open={openTechRequestList}

@@ -1,3 +1,38 @@
+# This Application Start Up. 
+
+# This app contains:
+ node, react MUI components, primereact components, dayjs, axios, jest
+
+# Getting Started with Pearson Form
+
+## INSTALL BELOW
+# To install MUI:
+npm install @mui/material @emotion/react @emotion/styled
+
+Link to MUI: https://mui.com/material-ui/
+
+# Install PrimeReact: npm install primereact 
+Link to PrimeReact: https://primereact.org/installation/
+
+# Install MUI Date pickers: 
+npm install @mui/x-date-pickers
+
+npm install dayjs
+
+Link to date pickers: https://mui.com/x/react-date-pickers/getting-started/
+
+# Install axios for http requests
+npm install axios
+
+# Install jest for unit tests
+npm install --save-dev jest
+
+# `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+___________________________________________________________________________________________________
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
